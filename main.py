@@ -27,18 +27,12 @@ GATE_MIN = 1
 GATE_MAX = 200
 
 
-def entry_stats(text):
-    """Return (characters, bytes) of `text` encoded as UTF-8."""
-    return len(text), len(text.encode("utf-8"))
-
 
 def gate_problems(text):
     """Return a list of every way `text` breaks the gate ([] = pass)."""
     problems = []
     if not text.strip():
         problems.append("entry is blank or only whitespace")
-    # The gate counts characters, not bytes: a multibyte UTF-8
-    # character still counts as one character toward the limit.
     length = len(text)
     if length < GATE_MIN or length > GATE_MAX:
         problems.append(
@@ -68,8 +62,6 @@ def write_entry():
     with open(path, "w", encoding="utf-8", newline="") as handle:
         handle.write(EXCUSE)
 
-    # Verify what actually landed on disk: read it back and run the
-    # gate over it again, so a write glitch cannot slip through.
     with open(path, encoding="utf-8") as handle:
         on_disk = handle.read()
     if on_disk != EXCUSE:
@@ -79,8 +71,6 @@ def write_entry():
     if problems:
         return report(problems, " on disk")
 
-    chars, nbytes = entry_stats(on_disk)
-    print("Wrote entry.txt: %d characters (%d bytes)" % (chars, nbytes))
     return 0
 
 
